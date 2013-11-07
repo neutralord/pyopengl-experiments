@@ -17,19 +17,19 @@ class Sample1:
     def __init__(self):
         glClearColor (0.0, 0.0, 0.0, 0.0)
 
-        VERTEX_SHADER = shaders.compileShader("""#version 430 core
+        vertex_shader = shaders.compileShader("""#version 430 core
         layout (location = 0) in vec4 vPosition;
         void main() {
             gl_Position = vPosition;
         }""", GL_VERTEX_SHADER)
 
-        FRAGMENT_SHADER = shaders.compileShader("""#version 430 core
+        fragment_shader = shaders.compileShader("""#version 430 core
         out vec4 fColor;
         void main() {
             fColor = vec4(0.0, 0.0, 1.0, 1.0);
         }""", GL_FRAGMENT_SHADER)
 
-        self.shader = shaders.compileProgram(VERTEX_SHADER,FRAGMENT_SHADER)
+        self.shader = shaders.compileProgram(vertex_shader, fragment_shader)
         shaders.glUseProgram(self.shader)
 
         self.position_location = glGetAttribLocation(
@@ -37,7 +37,7 @@ class Sample1:
         )
 
         self.vbo = vbo.VBO(
-            array( [
+            array([
                 [-0.90, -0.90],
                 [ 0.85, -0.90],
                 [-0.90,  0.85],
@@ -48,22 +48,16 @@ class Sample1:
         )
         self.vbo.bind()
 
-        glEnableVertexAttribArray( self.position_location )
         glVertexAttribPointer(
             self.position_location,
             2, GL_FLOAT, False, 0, self.vbo
         )
+        glEnableVertexAttribArray(self.position_location)
 
     def display(self):
         try:
             glClear(GL_COLOR_BUFFER_BIT)
-            try:
-                glEnableClientState(GL_VERTEX_ARRAY);
-                glVertexPointerf(self.vbo)
-                glDrawArrays(GL_TRIANGLES, 0, 6)
-            finally:
-                self.vbo.unbind()
-                glDisableClientState(GL_VERTEX_ARRAY);
+            glDrawArrays(GL_TRIANGLES, 0, 6)
         finally:
             glFlush ()
 
