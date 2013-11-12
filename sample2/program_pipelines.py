@@ -60,17 +60,15 @@ class Sample5:
             separable=True
         )
 
-        pipeline_red = GLuint()
-        glGenProgramPipelines(1, pipeline_red)
-        glUseProgramStages(pipeline_red, GL_VERTEX_SHADER_BIT, self.position_shader)
-        glUseProgramStages(pipeline_red, GL_FRAGMENT_SHADER_BIT, self.red_shader)
+        self.pipeline_red = GLuint()
+        glGenProgramPipelines(1, self.pipeline_red)
+        glUseProgramStages(self.pipeline_red, GL_VERTEX_SHADER_BIT, self.position_shader)
+        glUseProgramStages(self.pipeline_red, GL_FRAGMENT_SHADER_BIT, self.red_shader)
 
-        pipeline_green = GLuint()
-        glGenProgramPipelines(1, pipeline_green)
-        glUseProgramStages(pipeline_green, GL_VERTEX_SHADER_BIT, self.position_shader)
-        glUseProgramStages(pipeline_green, GL_FRAGMENT_SHADER_BIT, self.green_shader)
-
-        glBindProgramPipeline(pipeline_red) # or pipeline_green
+        self.pipeline_green = GLuint()
+        glGenProgramPipelines(1, self.pipeline_green)
+        glUseProgramStages(self.pipeline_green, GL_VERTEX_SHADER_BIT, self.position_shader)
+        glUseProgramStages(self.pipeline_green, GL_FRAGMENT_SHADER_BIT, self.green_shader)
 
         self.vbo = vbo.VBO(
             array([
@@ -93,7 +91,10 @@ class Sample5:
     def display(self):
         try:
             glClear(GL_COLOR_BUFFER_BIT)
-            glDrawArrays(GL_TRIANGLES, 0, 6)
+            glBindProgramPipeline(self.pipeline_red)
+            glDrawArrays(GL_TRIANGLES, 0, 3)
+            glBindProgramPipeline(self.pipeline_green)
+            glDrawArrays(GL_TRIANGLES, 3, 3)
         finally:
             glFlush ()
 
