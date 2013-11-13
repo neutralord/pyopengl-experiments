@@ -61,36 +61,25 @@ class Sample4:
             self.shader, 'vPosition'
         )
 
-        color_function_location = glGetSubroutineUniformLocation(
+        self.color_function_location = glGetSubroutineUniformLocation(
             self.shader,
             GL_FRAGMENT_SHADER,
             'getColor'
         )
 
-        red_color_index = glGetSubroutineIndex(self.shader, GL_FRAGMENT_SHADER, 'redColor')
-        green_color_index = glGetSubroutineIndex(self.shader, GL_FRAGMENT_SHADER, 'greenColor')
+        self.red_color_index = glGetSubroutineIndex(self.shader, GL_FRAGMENT_SHADER, 'redColor')
+        self.green_color_index = glGetSubroutineIndex(self.shader, GL_FRAGMENT_SHADER, 'greenColor')
 
-        channel_function_location = glGetSubroutineUniformLocation(
+        self.channel_function_location = glGetSubroutineUniformLocation(
             self.shader,
             GL_FRAGMENT_SHADER,
             'getAlpha'
         )
 
-        semi_tranparent_index = glGetSubroutineIndex(self.shader, GL_FRAGMENT_SHADER, 'semiTransparent')
-        opaque_index = glGetSubroutineIndex(self.shader, GL_FRAGMENT_SHADER, 'opaque')
+        self.semi_tranparent_index = glGetSubroutineIndex(self.shader, GL_FRAGMENT_SHADER, 'semiTransparent')
+        self.opaque_index = glGetSubroutineIndex(self.shader, GL_FRAGMENT_SHADER, 'opaque')
 
-        if (red_color_index != GL_INVALID_INDEX and
-                    green_color_index != GL_INVALID_INDEX and
-                    semi_tranparent_index != GL_INVALID_INDEX and
-                    opaque_index != GL_INVALID_INDEX):
-            subroutines = {
-                channel_function_location: semi_tranparent_index,
-                color_function_location: red_color_index,
-            }
-            subroutine_indices = [None] * (max(subroutines.keys()) + 1)
-            for location, index in subroutines.iteritems():
-                subroutine_indices[location] = index
-            glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, len(subroutine_indices), subroutine_indices)
+        self.subroutine_indices = list()
 
         self.vbo = vbo.VBO(
             array([
@@ -110,10 +99,32 @@ class Sample4:
         )
         glEnableVertexAttribArray(self.position_location)
 
+    def set_subroutines(self, subroutines):
+        """subroutines = {subroutine_location: subroutine_index, ...}"""
+        subroutine_indices = [None] * (max(subroutines.keys()) + 1)
+        # TODO: there must be checking for index != GL_INVALID_INDEX
+        for location, index in subroutines.iteritems():
+            subroutine_indices[location] = index
+        glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, len(subroutine_indices), subroutine_indices)
+
     def display(self):
         try:
             glClear(GL_COLOR_BUFFER_BIT)
-            glDrawArrays(GL_TRIANGLES, 0, 6)
+
+            # set subroutines
+            subroutines = {
+                self.channel_function_location: self.semi_tranparent_index,
+                self.color_function_location: self.red_color_index,
+            }
+            self.set_subroutines(subroutines)
+            glDrawArrays(GL_TRIANGLES, 0, 3)
+
+            # change color subroutine to green
+            subroutines[self.color_function_location] = self.green_color_index
+            # change channel subroutine to opaque
+            subroutines[self.channel_function_location] = self.opaque_index
+            self.set_subroutines(subroutines)
+            glDrawArrays(GL_TRIANGLES, 3, 3)
         finally:
             glFlush ()
 
