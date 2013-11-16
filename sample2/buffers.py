@@ -7,7 +7,7 @@ try:
     from OpenGL.GL import shaders
     from OpenGL.arrays import vbo
     from vrml.arrays import *
-    from ctypes import c_void_p
+    from numpy import concatenate
 except:
     print '''
 ERROR: PyOpenGL not installed properly.
@@ -24,17 +24,20 @@ class Sample6:
 
         vertex_shader = shaders.compileShader("""#version 430 core
         in vec4 vPosition;
+        in vec4 vColor;
+        varying vec4 varyingColor;
 
         void main() {
             gl_Position = vPosition;
+            varyingColor = vColor;
         }""", GL_VERTEX_SHADER)
 
         fragment_shader = shaders.compileShader("""#version 430 core
         out vec4 fColor;
+        varying vec4 varyingColor;
 
         void main() {
-            fColor = vec4(1.0, 0.0, 0.0, 1.0);
-            //fColor = varyingColor;
+            fColor = varyingColor;
         }""", GL_FRAGMENT_SHADER)
 
         self.shader = shaders.compileProgram(vertex_shader, fragment_shader)
@@ -61,32 +64,29 @@ class Sample6:
             0.0, 1.0, 1.0, 1.0,
         ], 'f')
 
-        vertex_indices = array([0, 1, 2], 'I')
+        self.vertex_buffer_object = vbo.VBO(concatenate((vertex_positions, vertex_colors)))
+        self.vertex_buffer_object.bind()
 
-        self.ebo = glGenBuffers(1)
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.ebo)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                vertex_indices.nbytes, vertex_indices, GL_STATIC_DRAW)
-
-        vao = glGenVertexArrays(1)
-        glBindVertexArray(vao)
-
-        vertex_buffer_object = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object)
-        glBufferData(GL_ARRAY_BUFFER,
-                vertex_positions.nbytes,
-                vertex_positions, GL_STATIC_DRAW)
+        self.vertex_indices = vbo.VBO(array([0, 1, 2], 'I'), target=GL_ELEMENT_ARRAY_BUFFER)
+        self.vertex_indices.bind()
 
         glVertexAttribPointer(
             self.position_location,
-            4, GL_FLOAT, False, 0, c_void_p(0)
+            4, GL_FLOAT, False, 0, self.vertex_buffer_object
         )
         glEnableVertexAttribArray(self.position_location)
+
+        glVertexAttribPointer(
+            self.color_location,
+            4, GL_FLOAT, False, 0, self.vertex_buffer_object + vertex_positions.nbytes
+        )
+        glEnableVertexAttribArray(self.color_location)
 
     def display(self):
         try:
             glClear(GL_COLOR_BUFFER_BIT)
-            glDrawArrays(GL_TRIANGLES, 0, 3)
+            #glDrawArrays(GL_TRIANGLES, 0, 3)
+            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, self.vertex_indices)
         finally:
             glFlush ()
 
