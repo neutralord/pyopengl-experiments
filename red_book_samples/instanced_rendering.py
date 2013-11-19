@@ -48,7 +48,7 @@ class Sample9:
         }
 
         void main() {
-            mat4 rotation = rotationMatrix(vec3(0.1, 0.2, 0.3), rotationAngle);
+            mat4 rotation = rotationMatrix(vec3(0.1, 0.2, gl_InstanceID * 0.3), rotationAngle);
             gl_Position = modelMatrix * rotation * vPosition;
             varyingColor = vColor;
         }""", GL_VERTEX_SHADER)
@@ -155,7 +155,8 @@ class Sample9:
             glClear(GL_COLOR_BUFFER_BIT)
             glUniform1f(self.rotation_angle_location, self.current_angle)
             #glDrawElements(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, self.vertex_indices)
-            glDrawElementsInstanced(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, self.vertex_indices, 3)
+            #glDrawElementsInstanced(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, self.vertex_indices, 3)
+            glDrawElementsInstancedBaseInstance(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, self.vertex_indices, 1, 2)
         finally:
             glFlush()
 
