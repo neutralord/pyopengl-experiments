@@ -23,7 +23,7 @@ class Sample8:
         glClearColor (0.0, 0.0, 0.0, 0.0)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glClearColor (0.0, 0.0, 0.0, 0.0)
+        glEnable(GL_DEPTH_TEST)
 
         vertex_shader = shaders.compileShader("""#version 430 core
         in vec4 vPosition;
@@ -132,7 +132,7 @@ class Sample8:
         self.current_angle += 0.000002 * self.delta_time.microseconds
         print self.current_angle
         try:
-            glClear(GL_COLOR_BUFFER_BIT)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
             translation_matrix = identity(4, 'f') # really it scale matrix there
             translation_matrix[-1][-1] = 2
             glUniformMatrix4fv(self.model_matrix_location, 1 , GL_TRUE, translation_matrix.tolist())

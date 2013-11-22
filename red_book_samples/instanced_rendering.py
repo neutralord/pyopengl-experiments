@@ -25,7 +25,7 @@ class Sample9:
         glClearColor (0.0, 0.0, 0.0, 0.0)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glClearColor (0.0, 0.0, 0.0, 0.0)
+        glEnable(GL_DEPTH_TEST)
 
         vertex_shader = shaders.compileShader("""#version 430 core
         in vec4 vPosition;
@@ -152,7 +152,7 @@ class Sample9:
         self.current_angle += 0.000002 * self.delta_time.microseconds
         print self.delta_time.microseconds
         try:
-            glClear(GL_COLOR_BUFFER_BIT)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
             glUniform1f(self.rotation_angle_location, self.current_angle)
             #glDrawElements(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, self.vertex_indices)
             #glDrawElementsInstanced(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, self.vertex_indices, 3)
