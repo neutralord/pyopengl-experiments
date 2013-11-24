@@ -15,7 +15,7 @@ ERROR: PyOpenGL not installed properly.
         '''
     sys.exit()
 
-class Sample10:
+class Sample11:
     def __init__(self):
         glClearColor (0.0, 0.0, 0.0, 0.0)
         glEnable(GL_BLEND)
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
     glutInitWindowSize(250, 250)
     glutInitWindowPosition(100, 100)
-    glutCreateWindow("sample 10")
-    sample = Sample10()
+    glutCreateWindow("sample 11")
+    sample = Sample11()
     glutDisplayFunc(sample.display)
     glutMainLoop()

@@ -15,7 +15,7 @@ ERROR: PyOpenGL not installed properly.
         '''
     sys.exit()
 
-class Sample8:
+class Sample12:
     def __init__(self):
         self.current_time = None
         self.current_angle = 0.0
@@ -164,8 +164,8 @@ if __name__ == '__main__':
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL)
     glutInitWindowSize(250, 250)
     glutInitWindowPosition(100, 100)
-    glutCreateWindow("sample 8")
-    sample = Sample8()
+    glutCreateWindow("sample 12")
+    sample = Sample12()
     glutDisplayFunc(sample.display)
     glutIdleFunc(sample.display)
     glutMainLoop()
