@@ -49,39 +49,39 @@ class Sample16:
         }
 
 
-        float fovy = 2.0;
-        float d = 1.0/tan(fovy/2.0);
-        float a = 1.0;
-        float near = 0.07;// + fract(rotationAngle/2)/100;
-        float far = 0.081;
-        /*
-        mat4 project_matrix = mat4(
-            d/a, 0.0, 0.0, 0.0,
-            0.0, d, 0.0, 0.0,
-            0.0, 0.0, (near + far)/(near - far), 2*far*near/(near - far),
-            0.0, 0.0, -1.0, 0.0
-        );
-        */
+        float far = 1.0;
+        float near = 0.1;
+        float left = -1.0;
+        float right = 1.0;
+        float top = 1.0;
+        float bottom = -1.0;
+
         mat4 project_matrix = mat4(
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 1.2,
             0.0, 0.0, -1.0, 0.0
         );
-        /*
-        float far = 0.7, width = 5.0, height = 5.0;
-        float near = 0.4 + fract(rotationAngle/10);
-        mat4 project_matrix = mat4(
-            near/width*2, 0.0, 0.0, 0.0,
-            0.0, near/height*2, 0.0, 0.0,
-            0.0, 0.0, (far + near)/(near - far), 2*far*near/(near - far),
-            0.0, 0.0, -1.0, 0.0
+
+        mat4 normalization = mat4(
+            2/(right-left), 0.0, 0.0, -(right+left)/(right-left),
+            0.0, 2/(top-bottom), 0.0, -(top+bottom)/(top-bottom),
+            0.0, 0.0, -2/(far-near), -(far+near)/(far-near),
+            0.0, 0.0, 0.0, 1.0
         );
-        */
+
+        mat4 ortho_matrix = mat4(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        );
+        mat4 ortho = ortho_matrix * normalization;
+
         void main() {
             mat4 globalRotation = rotationMatrix(vec3(1.0, 0.0, 0.0), 0.5);
             mat4 rotation = rotationMatrix(vec3(1.0, 0.0, 0.0), rotationAngle);
-            gl_Position = project_matrix * modelMatrix * rotation * vPosition;
+            gl_Position = ortho * modelMatrix * rotation * vPosition;
             varyingColor = vColor;
         }""", GL_VERTEX_SHADER)
 
