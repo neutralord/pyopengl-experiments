@@ -48,18 +48,40 @@ class Sample16:
                         0.0,                                0.0,                                0.0,                                1.0);
         }
 
-        float far = 0.9, near = 0.1, width = 1.0, height = 1.0;
 
+        float fovy = 2.0;
+        float d = 1.0/tan(fovy/2.0);
+        float a = 1.0;
+        float near = 0.07;// + fract(rotationAngle/2)/100;
+        float far = 0.081;
+        /*
+        mat4 project_matrix = mat4(
+            d/a, 0.0, 0.0, 0.0,
+            0.0, d, 0.0, 0.0,
+            0.0, 0.0, (near + far)/(near - far), 2*far*near/(near - far),
+            0.0, 0.0, -1.0, 0.0
+        );
+        */
+        mat4 project_matrix = mat4(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 1.2,
+            0.0, 0.0, -1.0, 0.0
+        );
+        /*
+        float far = 0.7, width = 5.0, height = 5.0;
+        float near = 0.4 + fract(rotationAngle/10);
         mat4 project_matrix = mat4(
             near/width*2, 0.0, 0.0, 0.0,
             0.0, near/height*2, 0.0, 0.0,
-            0.0, 0.0, -(far + near)/(far-near), 2*far*near/(far-near),
+            0.0, 0.0, (far + near)/(near - far), 2*far*near/(near - far),
             0.0, 0.0, -1.0, 0.0
         );
-
+        */
         void main() {
-            mat4 rotation = rotationMatrix(vec3(0.1, 0.1, 0.1), rotationAngle);
-            gl_Position = modelMatrix * project_matrix * rotation * vPosition;
+            mat4 globalRotation = rotationMatrix(vec3(1.0, 0.0, 0.0), 0.5);
+            mat4 rotation = rotationMatrix(vec3(1.0, 0.0, 0.0), rotationAngle);
+            gl_Position = project_matrix * modelMatrix * rotation * vPosition;
             varyingColor = vColor;
         }""", GL_VERTEX_SHADER)
 
@@ -112,9 +134,9 @@ class Sample16:
         model_matrix_list = array([], 'f')
         for i in range(9):
             model_matrix = array([
-                [.1, .0, .0, 2. * (i // 3)],
+                [.1, .0, .0, -.3 + .3 * (i // 3)],
                 [.0, .1, .0, .0],
-                [.0, .0, .1, 2. * (i % 3)],
+                [.0, .0, .1, .3 * (i % 3)],
                 [.0, .0, .0, 1.],
             ], 'f')
             model_matrix_list = np.append(
@@ -165,7 +187,7 @@ class Sample16:
         self.delta_time = datetime.now() - self.current_time
         self.current_time = datetime.now()
         self.current_angle += 0.0000006 * self.delta_time.microseconds
-        print self.delta_time.microseconds
+        print self.delta_time.microseconds, ': ', self.current_angle
         try:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
             glUniform1f(self.rotation_angle_location, self.current_angle)
@@ -179,7 +201,7 @@ class Sample16:
 if __name__ == '__main__':
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
-    glutInitWindowSize(250, 250)
+    glutInitWindowSize(600, 600)
     glutInitWindowPosition(100, 100)
     glutCreateWindow("sample 16")
     sample = Sample16()
