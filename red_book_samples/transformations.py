@@ -66,22 +66,22 @@ class Sample16:
         mat4 normalization = mat4(
             2/(right-left), 0.0, 0.0, -(right+left)/(right-left),
             0.0, 2/(top-bottom), 0.0, -(top+bottom)/(top-bottom),
-            0.0, 0.0, -2/(far-near), -(far+near)/(far-near),
+            0.0, 0.0, 2/(far-near), (far+near)/(far-near),
             0.0, 0.0, 0.0, 1.0
         );
 
         mat4 ortho_matrix = mat4(
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0
         );
         mat4 ortho = ortho_matrix * normalization;
 
         void main() {
-            mat4 globalRotation = rotationMatrix(vec3(1.0, 0.0, 0.0), 0.5);
+            mat4 globalRotation = rotationMatrix(vec3(1.0, 0.0, 0.0), 0.7);
             mat4 rotation = rotationMatrix(vec3(1.0, 0.0, 0.0), rotationAngle);
-            gl_Position = ortho * modelMatrix * rotation * vPosition;
+            gl_Position = ortho * globalRotation * modelMatrix * rotation * vPosition;
             varyingColor = vColor;
         }""", GL_VERTEX_SHADER)
 
@@ -186,7 +186,7 @@ class Sample16:
             self.current_time = datetime.now()
         self.delta_time = datetime.now() - self.current_time
         self.current_time = datetime.now()
-        self.current_angle += 0.0000006 * self.delta_time.microseconds
+        self.current_angle += 0.000002 * self.delta_time.microseconds
         print self.delta_time.microseconds, ': ', self.current_angle
         try:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
