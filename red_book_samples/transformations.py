@@ -48,40 +48,23 @@ class Sample16:
                         0.0,                                0.0,                                0.0,                                1.0);
         }
 
-
-        float far = 1.0;
-        float near = 0.3;
-        float left = -1.0;
-        float right = 1.0;
-        float top = 1.0;
-        float bottom = -1.0;
+        float far = -3.0;
+        float near = -0.9;
+        float left = -0.2;
+        float right = 0.2;
+        float top = 0.2;
+        float bottom = -0.2;
 
         mat4 perspective_matrix = mat4(
             2*near/(right-left), 0.0, (right+left)/(right-left), 0.0,
             0.0, 2*near/(top-bottom), (top+bottom)/(top-bottom), 0.0,
-            0.0, 0.0, -(far+near)/(far-near), -2*far*near/(far-near),
+            0.0, 0.0, -(far+near)/(far-near), 2*far*near/(far-near),
             0.0, 0.0, -1.0, 0.0
         );
 
-        mat4 normalization = mat4(
-            2/(right-left), 0.0, 0.0, -(right+left)/(right-left),
-            0.0, 2/(top-bottom), 0.0, -(top+bottom)/(top-bottom),
-            0.0, 0.0, -2/(far-near), -(far+near)/(far-near),
-            0.0, 0.0, 0.0, 1.0
-        );
-
-        mat4 ortho_matrix = mat4(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 1.0
-        );
-        mat4 ortho = ortho_matrix * normalization;
-
         void main() {
-            mat4 globalRotation = rotationMatrix(vec3(1.0, 0.0, 0.0), 2.6);
             mat4 rotation = rotationMatrix(vec3(1.0, 0.0, 0.0), rotationAngle);
-            gl_Position = perspective_matrix * globalRotation * modelMatrix * rotation * vPosition;
+            gl_Position = perspective_matrix * modelMatrix * rotation * vPosition;
             varyingColor = vColor;
         }""", GL_VERTEX_SHADER)
 
@@ -136,7 +119,7 @@ class Sample16:
             model_matrix = array([
                 [.1, .0, .0, -.3 + .3 * (i // 3)],
                 [.0, .1, .0, .0],
-                [.0, .0, .1, 0.6 + .3 * (i % 3)],
+                [.0, .0, .1, -.6 - .3 * (i % 3)],
                 [.0, .0, .0, 1.],
             ], 'f')
             model_matrix_list = np.append(
@@ -196,6 +179,7 @@ class Sample16:
             #glDrawElementsInstancedBaseInstance(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, self.vertex_indices, 1, 2)
         finally:
             glFlush()
+            glutPostRedisplay()
 
 
 if __name__ == '__main__':
