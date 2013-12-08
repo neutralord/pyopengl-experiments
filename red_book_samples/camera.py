@@ -1,5 +1,6 @@
 from __future__ import division
 import sys
+from scipy.linalg import orth
 
 try:
     from OpenGL.GLUT import *
@@ -18,15 +19,45 @@ ERROR: PyOpenGL not installed properly.
     sys.exit()
 
 class Sample17:
+    def v_length(self, v):
+        v = v.tolist()
+        return np.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])
+
+    def normalize(self, v):
+        vm = self.v_length(v)
+        v = v.tolist()
+        return array([v[0]/vm, v[1]/vm, v[2]/vm], 'f')
+
+    def rotation_matrix(self, axis, angle):
+        axis = self.normalize(axis).tolist()
+        s = np.sin(angle)
+        c = np.cos(angle)
+        oc = 1. - c
+
+        return np.array([
+            [oc*axis[0]*axis[0]+c, oc*axis[0]*axis[1]-axis[2]*s, oc*axis[2]*axis[0]+axis[1]*s, 0.],
+            [oc*axis[0]*axis[1]+axis[2]*s, oc*axis[1]*axis[1]+c, oc*axis[1]*axis[2]-axis[0]*s, 0.],
+            [oc*axis[2]*axis[0]-axis[1]*s, oc*axis[1]*axis[2]+axis[0]*s, oc*axis[2]*axis[2]+c, 0.],
+            [0., 0., 0., 1.],
+        ], 'f')
+
     def __init__(self):
         self.current_time = None
         self.current_angle = 0.0
         self.delta_time = 0.0
         self.camera = {
-            'x': .0,
-            'y': .0,
-            'z': .0
+            'pos': {
+                'x': .0,
+                'y': .0,
+                'z': .0
+            },
+            'angle': {
+                'x': .0,
+                'y': .0,
+                'z': .0
+            }
         }
+        self.mouse_pos = [0, 0]
 
         glClearColor (0.0, 0.0, 0.0, 0.0)
         glEnable(GL_BLEND)
@@ -181,13 +212,16 @@ class Sample17:
         self.current_angle += 0.000002 * self.delta_time.microseconds
 
         view_matrix = array([
-            [1., .0, .0, -self.camera['x']],
-            [.0, 1., .0, -self.camera['y']],
+            [1., .0, .0, -self.camera['pos']['x']],
+            [.0, 1., .0, -self.camera['pos']['y']],
             [.0, .0, 1., .0],
             [.0, .0, .0, 1.],
         ], 'f')
+        rotation_matrix_x = self.rotation_matrix(array([0., 1., 0.], 'f'), self.camera['angle']['x'])
+        rotation_matrix_y = self.rotation_matrix(array([1., 0., 0.], 'f'), self.camera['angle']['y'])
+        rotation_matrix = np.dot(rotation_matrix_x, rotation_matrix_y)
+        view_matrix = np.dot(view_matrix, rotation_matrix)
 
-        print self.delta_time.microseconds, ': ', self.current_angle
         try:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
             glUniform1f(self.rotation_angle_location, self.current_angle)
@@ -199,16 +233,21 @@ class Sample17:
 
     def keyboard(self, key, x, y):
         if key == GLUT_KEY_LEFT:
-            self.camera['x'] += .01
+            self.camera['pos']['x'] += .01
         if key == GLUT_KEY_RIGHT:
-            self.camera['x'] -= .01
+            self.camera['pos']['x'] -= .01
         if key == GLUT_KEY_UP:
-            self.camera['y'] -= .01
+            self.camera['pos']['y'] -= .01
         if key == GLUT_KEY_DOWN:
-            self.camera['y'] += .01
+            self.camera['pos']['y'] += .01
         if key == chr(27):
             sys.exit(0)
 
+    def mouse(self, x, y):
+        self.mouse_pos = [x, y]
+        self.camera['angle']['x'] = (300-x)/300.0
+        self.camera['angle']['y'] = (300-y)/300.0
+        print self.camera['angle']['x']
 
 if __name__ == '__main__':
     glutInit(sys.argv)
@@ -221,4 +260,5 @@ if __name__ == '__main__':
     glutIdleFunc(sample.display)
     glutKeyboardFunc(sample.keyboard)
     glutSpecialFunc(sample.keyboard)
+    glutPassiveMotionFunc(sample.mouse)
     glutMainLoop()
