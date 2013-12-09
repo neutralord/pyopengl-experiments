@@ -174,6 +174,7 @@ class Sample15:
             glutSwapBuffers()
         finally:
             glFlush()
+            glutPostRedisplay()
 
 
 if __name__ == '__main__':

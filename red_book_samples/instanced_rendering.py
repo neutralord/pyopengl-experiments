@@ -159,6 +159,7 @@ class Sample9:
             glDrawElementsInstancedBaseInstance(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, self.vertex_indices, 1, 2)
         finally:
             glFlush()
+            glutPostRedisplay()
 
 
 if __name__ == '__main__':

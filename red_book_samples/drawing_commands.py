@@ -109,6 +109,7 @@ class Sample7:
             glDrawArraysInstanced(GL_TRIANGLES, 0, 3, 1)
         finally:
             glFlush ()
+            glutPostRedisplay()
 
 
 if __name__ == '__main__':
